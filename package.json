@@ -1,0 +1,27 @@
+{
+  "name": "reactlike",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server --mode development --progress --colors --quiet",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JadeTao/reactlike.git"
+  },
+  "author": "jadertao",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/JadeTao/reactlike/issues"
+  },
+  "homepage": "https://github.com/JadeTao/reactlike#readme",
+  "devDependencies": {
+    "ts-loader": "^4.1.0",
+    "typescript": "^2.8.1",
+    "webpack": "^4.4.1",
+    "webpack-cli": "^2.0.13",
+    "webpack-dev-server": "^3.1.1"
+  }
+}
