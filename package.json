@@ -18,11 +18,6 @@
   },
   "homepage": "https://github.com/JadeTao/reactlike#readme",
   "devDependencies": {
-    "babel-core": "^6.26.3",
-    "babel-loader": "^7.1.4",
-    "babel-plugin-transform-react-jsx": "^6.24.1",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-react": "^6.24.1",
     "ts-loader": "^4.1.0",
     "typescript": "^2.8.1",
     "webpack": "^4.4.1",
