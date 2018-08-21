@@ -1,4 +1,5 @@
 import { IElement, IHTMLElement, IElementProps, IInstance } from "./interface";
+import { isAttribute, isListener, isTextElement, isFalsy, getEventType } from "./utils";
 
 let rootInstance = null;
 
@@ -8,11 +9,19 @@ export function render(element: IElement, parentDom: HTMLElement) {
   rootInstance = nextInstance;
 }
 
-function reconcile(parentDom: HTMLElement, instance, element: IElement) {
+function reconcile(parentDom: HTMLElement, instance: IInstance, element: IElement) {
   if (instance == null) {
     const newInstance = instantiate(element);
     parentDom.appendChild(newInstance.dom);
     return newInstance;
+  } else if (element == null) {
+    parentDom.removeChild(instance.dom);
+    return null;
+  } else if (instance.element.type === element.type) {
+    updateDOMProperties(instance.dom, instance.element.props, element.props);
+    instance.childInstances = reconcileChildren(instance, element);
+    instance.element = element;
+    return instance;
   } else {
     const newInstance = instantiate(element);
     parentDom.replaceChild(newInstance.dom, instance.dom);
@@ -20,26 +29,31 @@ function reconcile(parentDom: HTMLElement, instance, element: IElement) {
     return newInstance;
   }
 }
+
+function reconcileChildren(instance: IInstance, element: IElement) {
+  const dom = instance.dom;
+  const childInstances = instance.childInstances;
+  const nextChildElements = element.props.children || [];
+  const newChildInstances = [];
+  const count = Math.max(childInstances.length, nextChildElements.length);
+
+  for (let i = 0; i < count; i++) {
+    const childInstance = childInstances[i];
+    const childElement = nextChildElements[i];
+
+    const newChildInstance = reconcile(dom, childInstance, childElement);
+    newChildInstances.push(newChildInstance);
+  }
+  return newChildInstances.filter(instance => instance != null);
+}
+
 export function instantiate(element: IElement): IInstance {
-
   const { type, props } = element;
-  const TEXT_ELEMENT = "TEXT ELEMENT";
-  const isListener = (name: string) => name.startsWith("on");
-  const isAttribute = (name: string) => !isListener(name) && name !== 'children';
-  const isTextElement = (type: string | number) => type === TEXT_ELEMENT;
-
   const dom: IHTMLElement = isTextElement(type)
     ? document.createTextNode(props.nodeValue)
     : document.createElement(type);
 
-  Object.keys(props).filter(isListener).forEach((name: string) => {
-    const eventType: string = name.slice(2).toLowerCase();
-    dom.addEventListener(eventType, props[name]);
-  })
-
-  Object.keys(props).filter(isAttribute).forEach((name: string) => {
-    dom[name] = props[name];
-  })
+  updateDOMProperties(dom, {}, props);
 
   const childElements = props.children || [];
   const childInstances = childElements.map(instantiate);
@@ -51,12 +65,37 @@ export function instantiate(element: IElement): IInstance {
   return instance;
 }
 
+function updateDOMProperties(dom: IHTMLElement, prevProps: IElementProps, nextProps: IElementProps) {
+
+  if (prevProps && !isFalsy(prevProps)) {
+    Object.keys(prevProps).filter(isListener).forEach((name: string) => {
+      const eventType: string = getEventType(name);
+      dom.removeEventListener(eventType, prevProps[name]);
+    })
+
+    Object.keys(prevProps).filter(isAttribute).forEach((name: string) => {
+      dom[name] = null;
+    })
+  }
+
+  if (nextProps && !isFalsy(nextProps)) {
+    Object.keys(nextProps).filter(isAttribute).forEach((name: string) => {
+      dom[name] = nextProps[name];
+    })
+
+    Object.keys(nextProps).filter(isListener).forEach((name: string) => {
+      const eventType: string = getEventType(name);
+      dom.addEventListener(eventType, nextProps[name]);
+    })
+  }
+}
+
 function createTextElement(nodeValue: string) {
-  const TEXT_ELEMENT = "TEXT ELEMENT";
+  const TEXT_ELEMENT = "TEXT_ELEMENT";
   return createElement(TEXT_ELEMENT, { nodeValue });
 }
 
-export function createElement(type: string, config: IElementProps | null, ...args: any[]): IElement {
+export function createElement(type: string, config: IElementProps, ...args: any[]): IElement {
   const props: IElementProps = Object.assign({}, config);
   const hasChildren = args.length > 0;
   const rawChildren = hasChildren ? [].concat(...args) : [];
