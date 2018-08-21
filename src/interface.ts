@@ -1,9 +1,10 @@
-export interface IElementProps {
+interface IElementProp {
   [key: string]: any,
   id?: string | number,
   children?: any[],
   nodeValue?: string,
 }
+export type IElementProps = IElementProp | null
 export interface IElement {
   type: any,
   props: IElementProps,
