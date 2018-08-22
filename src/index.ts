@@ -1,15 +1,31 @@
 import { IElement, IHTMLElement, IElementProps, IInstance } from "./interface";
 import { isAttribute, isListener, isTextElement, isFalsy, getEventType } from "./utils";
 
-let rootInstance = null;
+let rootInstance: IInstance = null;
 
-export function render(element: IElement, parentDom: HTMLElement) {
-  const prevInstance = rootInstance;
-  const nextInstance = reconcile(parentDom, prevInstance, element);
+/**
+ * element 是JSX被jsxFactory(TS)或者babel-preset-react(JS)解析后生成的类型
+ * 
+ * @export
+ * @param {IElement} element
+ * @param {IHTMLElement} parentDom
+ */
+export function render(element: IElement, parentDom: IHTMLElement) {
+  const prevInstance: IInstance = rootInstance;
+  const nextInstance: IInstance = reconcile(parentDom, prevInstance, element);
   rootInstance = nextInstance;
 }
 
-function reconcile(parentDom: HTMLElement, instance: IInstance, element: IElement) {
+
+/**
+ *
+ *
+ * @param {IHTMLElement} parentDom
+ * @param {IInstance} instance
+ * @param {IElement} element
+ * @returns {IInstance}
+ */
+function reconcile(parentDom: IHTMLElement, instance: IInstance, element: IElement): IInstance {
   if (instance == null) {
     const newInstance = instantiate(element);
     parentDom.appendChild(newInstance.dom);
@@ -25,16 +41,23 @@ function reconcile(parentDom: HTMLElement, instance: IInstance, element: IElemen
   } else {
     const newInstance = instantiate(element);
     parentDom.replaceChild(newInstance.dom, instance.dom);
-    console.log(newInstance, instance);
     return newInstance;
   }
 }
 
-function reconcileChildren(instance: IInstance, element: IElement) {
+
+/**
+ *
+ *
+ * @param {IInstance} instance
+ * @param {IElement} element
+ * @returns {Array<IInstance>}
+ */
+function reconcileChildren(instance: IInstance, element: IElement): Array<IInstance> {
   const dom = instance.dom;
   const childInstances = instance.childInstances;
   const nextChildElements = element.props.children || [];
-  const newChildInstances = [];
+  const newChildInstances: Array<IInstance> = [];
   const count = Math.max(childInstances.length, nextChildElements.length);
 
   for (let i = 0; i < count; i++) {
@@ -47,6 +70,13 @@ function reconcileChildren(instance: IInstance, element: IElement) {
   return newChildInstances.filter(instance => instance != null);
 }
 
+/**
+ *
+ *
+ * @export
+ * @param {IElement} element
+ * @returns {IInstance}
+ */
 export function instantiate(element: IElement): IInstance {
   const { type, props } = element;
   const dom: IHTMLElement = isTextElement(type)
@@ -65,6 +95,13 @@ export function instantiate(element: IElement): IInstance {
   return instance;
 }
 
+/**
+ *
+ *
+ * @param {IHTMLElement} dom
+ * @param {IElementProps} prevProps
+ * @param {IElementProps} nextProps
+ */
 function updateDOMProperties(dom: IHTMLElement, prevProps: IElementProps, nextProps: IElementProps) {
 
   if (prevProps && !isFalsy(prevProps)) {
@@ -90,11 +127,27 @@ function updateDOMProperties(dom: IHTMLElement, prevProps: IElementProps, nextPr
   }
 }
 
-function createTextElement(nodeValue: string) {
+
+/**
+ *
+ *
+ * @param {string} nodeValue
+ * @returns {IElement}
+ */
+function createTextElement(nodeValue: string): IElement {
   const TEXT_ELEMENT = "TEXT_ELEMENT";
   return createElement(TEXT_ELEMENT, { nodeValue });
 }
 
+/**
+ *
+ *
+ * @export
+ * @param {string} type
+ * @param {IElementProps} config
+ * @param {...any[]} args
+ * @returns {IElement}
+ */
 export function createElement(type: string, config: IElementProps, ...args: any[]): IElement {
   const props: IElementProps = Object.assign({}, config);
   const hasChildren = args.length > 0;
