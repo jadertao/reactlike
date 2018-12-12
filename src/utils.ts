@@ -16,6 +16,18 @@ function isPlainObject(obj: any): boolean {
   return Object.getPrototypeOf(obj) === proto
 }
 
-export const isFalsy = (v: any) => (getType(v) === 'array' && v.length === 0) || (isPlainObject(v) && Object.keys(v).length === 0)
+export const isFalsy = (v: any) => {
+  const type = getType(v);
+  if (type === 'array' && v.length === 0) {
+    return true;
+  } else if (isPlainObject(v) && Object.keys(v).length === 0) {
+    return true;
+  } else if (type === 'undefined') {
+    return true;
+  } else if (type === 'null') {
+    return true;
+  }
+  return false;
+}
 
 export const getEventType = (name: string) => name.slice(2).toLowerCase();
