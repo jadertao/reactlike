@@ -1,3 +1,5 @@
+import { Component } from "./compoent";
+
 interface IElementProp {
   [key: string]: any,
   id?: string | number,
@@ -5,18 +7,24 @@ interface IElementProp {
   nodeValue?: string,
 }
 export type IElementProps = IElementProp | null
+
+
 export interface IElement {
-  type: any,
-  props: IElementProps,
+  type: any;
+  props: IElementProps;
 }
 
 export interface IHTMLElement extends HTMLElement {
-  [key: string]: any,
-  [key: number]: any,
+  [key: string]: any;
+  [key: number]: any;
 }
 
 export interface IInstance {
-  dom: IHTMLElement,
-  element: IElement,
-  childInstances: IInstance[],
+  dom: IHTMLElement;
+  element: IElement;
+  childInstance?: IInstance;
+  childInstances?: IInstance[];
+  publicInstance?: Component;
 }
+
+export type state = any;

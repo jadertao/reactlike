@@ -1,3 +1,4 @@
+import { Component } from './compoent'
 import { IElement, IHTMLElement, IElementProps, IInstance } from "./interface";
 import { isAttribute, isListener, isTextElement, isFalsy, getEventType } from "./utils";
 
@@ -24,25 +25,38 @@ export function render(element: IElement, parentDom: IHTMLElement) {
  * @param {IElement} element 下一个状态对应的 JSX 生成的 Element
  * @returns {IInstance} 返回更新后的 instance
  */
-function reconcile(parentDom: IHTMLElement, instance: IInstance, element: IElement): IInstance {
+function reconcile(parentDom: IHTMLElement | Node, instance: Partial<IInstance>, element: IElement): IInstance {
   if (isFalsy(instance)) {
     const newInstance = instantiate(element);
     parentDom.appendChild(newInstance.dom);
     return newInstance;
-  } else if (isFalsy(instance)) {
+  } else if (isFalsy(element)) {
     parentDom.removeChild(instance.dom);
     return null;
-    // 简单的 diff, type 相同，只更新属性，不重新实例化
-  } else if (instance.element.type === element.type) {
-    updateDOMProperties(instance.dom, instance.element.props, element.props);
-    instance.childInstances = reconcileChildren(instance, element);
-    instance.element = element;
-    return instance;
-  } else {
-    // 简单的 diff, type 不同，重新实例化
+  } else if (instance.element.type !== element.type) {
     const newInstance = instantiate(element);
     parentDom.replaceChild(newInstance.dom, instance.dom);
     return newInstance;
+  } else if (typeof element.type === "string") {
+    // Update dom instance
+    updateDOMProperties(instance.dom, instance.element.props, element.props);
+    instance.childInstances = reconcileChildren(instance, element);
+    instance.element = element;
+    return instance as IInstance;
+  } else {
+    // 更新组件
+    // parentDom 真实-html-树
+    // element   新
+    // instance  旧
+    instance.publicInstance.props = element.props;
+    const childElement: IElement = instance.publicInstance.render();
+
+    const oldChildInstance: IInstance = instance.childInstance;
+    const childInstance: IInstance = reconcile(parentDom, oldChildInstance, childElement);
+    instance.dom = childInstance.dom;
+    instance.childInstance = childInstance;
+    instance.element = element;
+    return instance as IInstance;
   }
 }
 
@@ -53,7 +67,7 @@ function reconcile(parentDom: IHTMLElement, instance: IInstance, element: IEleme
  * @param {IElement} element
  * @returns {Array<IInstance>}
  */
-function reconcileChildren(instance: IInstance, element: IElement): Array<IInstance> {
+function reconcileChildren(instance: Partial<IInstance>, element: IElement): Array<IInstance> {
   const dom = instance.dom;
   const childInstances = instance.childInstances;
   const nextChildElements = element.props.children || [];
@@ -79,22 +93,38 @@ function reconcileChildren(instance: IInstance, element: IElement): Array<IInsta
  */
 export function instantiate(element: IElement): IInstance {
   const { type, props } = element;
-  const dom: IHTMLElement = isTextElement(type)
-    ? document.createTextNode(props.nodeValue)
-    : document.createElement(type);
+  console.log(type);
+  const isDomElement = typeof type === "string";
 
-  // 为 DOM 部署属性
-  updateDOMProperties(dom, {}, props);
+  if (isDomElement) {
+    const dom: IHTMLElement = isTextElement(type)
+      ? document.createTextNode(props.nodeValue)
+      : document.createElement(type);
 
-  const childElements = props.children || [];
-  const childInstances = childElements.map(instantiate);
-  const childDoms = childInstances.map(childInstance => childInstance.dom);
+    // 为 DOM 部署属性
+    updateDOMProperties(dom, {}, props);
 
+    const childElements = props.children || [];
+    const childInstances = childElements.map(instantiate);
+    const childDoms = childInstances.map(childInstance => childInstance.dom);
 
-  childDoms.forEach(childDom => dom.appendChild(childDom));
+    childDoms.forEach(childDom => dom.appendChild(childDom));
 
-  const instance = { dom, element, childInstances };
-  return instance;
+    const instance: IInstance = { dom, element, childInstances };
+    return instance;
+  } else {
+    const instance: Partial<IInstance> = {};
+    const publicInstance: Component = createPublicInstance(element, instance);
+    // 
+    const childElement: IElement = publicInstance.render();
+
+    const childInstance = instantiate(childElement);
+    const dom = childInstance.dom;
+
+    Object.assign(instance as IInstance, { dom, element, childInstance, publicInstance });
+    return instance as IInstance;
+  }
+
 }
 
 /**
@@ -160,6 +190,21 @@ export function createElement(type: string, config: IElementProps, ...args: any[
     .filter((c: any) => c != undefined && c != null)
     .map((c: any) => (typeof c === 'string' || typeof c === 'number') ? createTextElement(String(c)) : c);
   return { type, props };
+}
+
+function createPublicInstance(element: IElement, internalInstance: Partial<IInstance>): Component {
+  const { type, props } = element;
+  const publicInstance: Component = new type(props);
+  publicInstance.__internalInstance = internalInstance;
+  return publicInstance;
+}
+
+export function updateInstance(internalInstance: Partial<IInstance>) {
+
+  const parentDom = internalInstance.dom.parentNode;
+  const element = internalInstance.element;
+
+  reconcile(parentDom, internalInstance, element);
 }
 
 export const Reactlike = {

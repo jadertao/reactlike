@@ -6,14 +6,14 @@ export const isTextElement = (type: string | number) => type === 'TEXT_ELEMENT';
 const getType = (v: any) => Object.prototype.toString.call(v).slice(8, -1).toLowerCase();
 
 function isPlainObject(obj: any): boolean {
-  if (typeof obj !== 'object' || obj === null) return false
+  if (typeof obj !== 'object' || obj === null) return false;
 
-  let proto = obj
+  let proto = obj;
   while (Object.getPrototypeOf(proto) !== null) {
-    proto = Object.getPrototypeOf(proto)
+    proto = Object.getPrototypeOf(proto);
   }
 
-  return Object.getPrototypeOf(obj) === proto
+  return Object.getPrototypeOf(obj) === proto;
 }
 
 export const isFalsy = (v: any) => {
