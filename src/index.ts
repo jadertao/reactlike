@@ -1,6 +1,6 @@
 import { Component } from './compoent'
 import { IElement, IHTMLElement, IElementProps, IInstance } from "./interface";
-import { isAttribute, isListener, isTextElement, isFalsy, getEventType } from "./utils";
+import { isAttribute, isListener, isTextElement, isFalsy, getEventType, getType } from "./utils";
 
 let rootInstance: IInstance = null;
 
@@ -50,7 +50,6 @@ function reconcile(parentDom: IHTMLElement | Node, instance: Partial<IInstance>,
     // instance  旧
     instance.publicInstance.props = element.props;
     const childElement: IElement = instance.publicInstance.render();
-
     const oldChildInstance: IInstance = instance.childInstance;
     const childInstance: IInstance = reconcile(parentDom, oldChildInstance, childElement);
     instance.dom = childInstance.dom;
@@ -92,8 +91,10 @@ function reconcileChildren(instance: Partial<IInstance>, element: IElement): Arr
  * @returns {IInstance} React 实例
  */
 export function instantiate(element: IElement): IInstance {
+  if (getType(element) !== 'object') {
+    throw new Error(`${element} is not a valid child`);
+  }
   const { type, props } = element;
-  console.log(type);
   const isDomElement = typeof type === "string";
 
   if (isDomElement) {
@@ -103,8 +104,8 @@ export function instantiate(element: IElement): IInstance {
 
     // 为 DOM 部署属性
     updateDOMProperties(dom, {}, props);
-
     const childElements = props.children || [];
+
     const childInstances = childElements.map(instantiate);
     const childDoms = childInstances.map(childInstance => childInstance.dom);
 
@@ -117,7 +118,6 @@ export function instantiate(element: IElement): IInstance {
     const publicInstance: Component = createPublicInstance(element, instance);
     // 
     const childElement: IElement = publicInstance.render();
-
     const childInstance = instantiate(childElement);
     const dom = childInstance.dom;
 
@@ -185,9 +185,9 @@ function createTextElement(nodeValue: string): IElement {
 export function createElement(type: string, config: IElementProps, ...args: any[]): IElement {
   const props: IElementProps = Object.assign({}, config);
   const hasChildren = args.length > 0;
-  const rawChildren = hasChildren ? [...args] : [];
+  const rawChildren = hasChildren ? [].concat(...args) : [];
   props.children = rawChildren
-    .filter((c: any) => c != undefined && c != null)
+    .filter((c: any) => c != undefined && c != null && c != false)
     .map((c: any) => (typeof c === 'string' || typeof c === 'number') ? createTextElement(String(c)) : c);
   return { type, props };
 }
@@ -201,10 +201,12 @@ function createPublicInstance(element: IElement, internalInstance: Partial<IInst
 
 export function updateInstance(internalInstance: Partial<IInstance>) {
 
-  const parentDom = internalInstance.dom.parentNode;
-  const element = internalInstance.element;
+  if (internalInstance && internalInstance.dom) {
+    const parentDom = internalInstance.dom.parentNode;
+    const element = internalInstance.element;
+    parentDom && element && reconcile(parentDom, internalInstance, element);
+  }
 
-  reconcile(parentDom, internalInstance, element);
 }
 
 export const Reactlike = {
