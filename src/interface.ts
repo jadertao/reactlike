@@ -1,3 +1,4 @@
+import { IInstance } from './interface'
 import { Component } from "./compoent";
 
 interface IElementProp {

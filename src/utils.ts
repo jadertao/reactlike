@@ -3,7 +3,7 @@ export const isAttribute = (name: string) => !isListener(name) && name !== 'chil
 
 export const isTextElement = (type: string | number) => type === 'TEXT_ELEMENT';
 
-const getType = (v: any) => Object.prototype.toString.call(v).slice(8, -1).toLowerCase();
+export const getType = (v: any) => Object.prototype.toString.call(v).slice(8, -1).toLowerCase();
 
 function isPlainObject(obj: any): boolean {
   if (typeof obj !== 'object' || obj === null) return false;
