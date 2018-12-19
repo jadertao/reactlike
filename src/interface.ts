@@ -27,5 +27,3 @@ export interface IInstance {
   childInstances?: IInstance[];
   publicInstance?: Component;
 }
-
-export type state = any;
