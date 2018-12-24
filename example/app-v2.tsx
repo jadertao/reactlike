@@ -1,4 +1,4 @@
-import { Component } from "@src/compoent";
+import { Component } from "@src/component";
 import { render, createElement } from "@src";
 
 export class App extends Component {

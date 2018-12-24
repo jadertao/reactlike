@@ -1,4 +1,4 @@
-import { Component } from "@src/compoent";
+import { Component } from "@src/component";
 import { render, createElement } from "@src";
 
 const data = ['long long ago,', 'there is a fish', 'swimming in the sky'];

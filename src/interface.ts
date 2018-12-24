@@ -1,5 +1,5 @@
 import { IInstance } from '@src/interface'
-import { Component } from "@src/compoent";
+import { Component } from "@src/component";
 
 interface IElementProp {
   [key: string]: any,

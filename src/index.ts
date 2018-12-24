@@ -1,4 +1,4 @@
-import { Component } from '@src/compoent'
+import { Component } from '@src/component'
 import { IElement, IHTMLElement, IElementProps, IInstance } from "@src/interface";
 import { isAttribute, isListener, isTextElement, isFalsy, getEventType, getType } from "@src/utils";
 
