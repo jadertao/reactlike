@@ -1,6 +1,6 @@
-import { Component } from './compoent'
-import { IElement, IHTMLElement, IElementProps, IInstance } from "./interface";
-import { isAttribute, isListener, isTextElement, isFalsy, getEventType, getType } from "./utils";
+import { Component } from '@src/compoent'
+import { IElement, IHTMLElement, IElementProps, IInstance } from "@src/interface";
+import { isAttribute, isListener, isTextElement, isFalsy, getEventType, getType } from "@src/utils";
 
 let rootInstance: IInstance = null;
 

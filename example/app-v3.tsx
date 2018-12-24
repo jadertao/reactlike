@@ -1,5 +1,5 @@
-import { Component } from "../src/compoent";
-import { render, createElement } from "../src";
+import { Component } from "@src/compoent";
+import { render, createElement } from "@src";
 
 const data = ['long long ago,', 'there is a fish', 'swimming in the sky'];
 class App extends Component<{ data: Array<string> }> {

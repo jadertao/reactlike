@@ -1,7 +1,7 @@
-import { IInstance, IElement } from "./interface";
-import { updateInstance } from ".";
+import { IInstance, IElement } from "@src/interface";
+import { updateInstance } from "@src";
 
-export interface Component<P = {}, S = {}> {}
+export interface Component<P = {}, S = {}> { }
 export abstract class Component<P, S> {
   public state: S;
   public __internalInstance: Partial<IInstance>;

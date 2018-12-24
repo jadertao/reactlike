@@ -1,4 +1,4 @@
-import { render, createElement } from "../src";
+import { render, createElement } from "@src";
 
 export function timer(rootDom): number {
   const a = 1

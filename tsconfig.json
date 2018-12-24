@@ -3,6 +3,13 @@
     "outDir": "./dist/",
     "sourceMap": true,
     // "noImplicitAny": true,
+    "baseUrl": ".",
+    "paths": {
+      "@src": ["src/index"],
+      "@src/*": ["src/*"],
+      "@example/*": ["example/*"],
+      "@example": ["example/index"],
+    },
     "module": "commonjs",
     "target": "es5",
     "allowJs": true,

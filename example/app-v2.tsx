@@ -1,5 +1,5 @@
-import { Component } from "../src/compoent";
-import { render, createElement } from "../src";
+import { Component } from "@src/compoent";
+import { render, createElement } from "@src";
 
 export class App extends Component {
   state = {
