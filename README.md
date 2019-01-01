@@ -1,5 +1,7 @@
-run  
-`npm i`  
-`npm start`  
+# React-Like
 
-check `localhost:8080`
+Tet another implement of React core conceptes.
+
+## Introduction
+
+This project is dedicated to learning how React works.
