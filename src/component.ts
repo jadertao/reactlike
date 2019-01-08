@@ -1,5 +1,5 @@
 import { IInstance, IElement } from "@src/interface";
-import { updateInstance } from "@src";
+import { updateInstance } from "@src/dom";
 
 export interface Component<P = {}, S = {}> { }
 export abstract class Component<P, S> {
