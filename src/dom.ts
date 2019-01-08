@@ -1,6 +1,5 @@
 import { IElement } from '@src/interface'
 import { isTextElement, getType } from '@src/utils'
-import { createElement } from '@src'
 import { Component } from '@src/component'
 import { isAttribute } from '@src/utils'
 import { isFalsy, getEventType, isListener } from '@src/utils'
@@ -11,6 +10,7 @@ import { reconcile } from '@src/reconcile';
 /**
  * instantiate, 实例化 JSX Element
  *
+ * element => instance
  * @export
  * @param {IElement} element JSX Element
  * @returns {IInstance} React 实例
@@ -22,12 +22,15 @@ export function instantiate(element: IElement): IInstance {
   const { type, props } = element;
   const isDomElement = typeof type === "string";
 
+  // 1. type 为 string 的普通元素
   if (isDomElement) {
+    // 普通元素
+    // 区分 text 节点还是普通 dom 节点
     const dom: IHTMLElement = isTextElement(type)
       ? document.createTextNode(props.nodeValue)
       : document.createElement(type);
 
-    // 为 DOM 部署属性
+    // 为 DOM 初始化属性
     updateDOMProperties(dom, {}, props);
     const childElements = props.children || [];
 
@@ -39,9 +42,11 @@ export function instantiate(element: IElement): IInstance {
     const instance: IInstance = { dom, element, childInstances };
     return instance;
   } else {
+    // class component
     const instance: Partial<IInstance> = {};
     const publicInstance: Component = createPublicInstance(element, instance);
-    //
+
+    // 这里可以调用声明周期(暂未实现)
     const childElement: IElement = publicInstance.render();
     const childInstance = instantiate(childElement);
     const dom = childInstance.dom;
@@ -86,17 +91,6 @@ export function updateDOMProperties(dom: IHTMLElement, prevProps: IElementProps,
       dom[name] = nextProps[name];
     })
   }
-}
-
-/**
- * createTextElement
- *
- * @param {string} nodeValue
- * @returns {IElement}
- */
-export function createTextElement(nodeValue: string): IElement {
-  const TEXT_ELEMENT = "TEXT_ELEMENT";
-  return createElement(TEXT_ELEMENT, { nodeValue });
 }
 
 

@@ -37,7 +37,6 @@ export function reconcile(parentDom: IHTMLElement | Node, instance: Partial<IIns
     // class component 的处理
 
     // 更新 props
-    console.log(instance);
     instance.publicInstance.props = element.props;
     // re-render
     const childElement: IElement = instance.publicInstance.render();

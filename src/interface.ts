@@ -9,7 +9,6 @@ interface IElementProp {
 }
 export type IElementProps = IElementProp | null
 
-
 export interface IElement {
   type: any;
   props: IElementProps;

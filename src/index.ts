@@ -1,6 +1,6 @@
+import { isFalsy } from '@src/utils'
 import { IElement, IHTMLElement, IElementProps, IInstance } from "@src/interface";
 import { reconcile } from '@src/reconcile';
-import { createTextElement } from "@src/dom";
 
 
 let rootInstance: IInstance = null;
@@ -19,12 +19,12 @@ export function render(element: IElement, parentDom: IHTMLElement) {
 }
 
 /**
- *
- *
+ * 解析 jsx 的函数
+ * 返回 element
  * @export
  * @param {string} type
- * @param {IElementProps} config
- * @param {...any[]} args
+ * @param {IElementProps} config 即 props
+ * @param {...any[]} args 子元素
  * @returns {IElement}
  */
 export function createElement(type: string, config: IElementProps, ...args: any[]): IElement {
@@ -32,7 +32,18 @@ export function createElement(type: string, config: IElementProps, ...args: any[
   const hasChildren = args.length > 0;
   const rawChildren = hasChildren ? [].concat(...args) : [];
   props.children = rawChildren
-    .filter((c: any) => c != undefined && c != null && c != false)
+    .filter((c: any) => !isFalsy(c))
     .map((c: any) => (typeof c === 'string' || typeof c === 'number') ? createTextElement(String(c)) : c);
   return { type, props };
+}
+
+/**
+ * createTextElement
+ * 创建 text 类型节点
+ * @param {string} nodeValue
+ * @returns {IElement}
+ */
+function createTextElement(nodeValue: string): IElement {
+  const TEXT_ELEMENT = "TEXT_ELEMENT";
+  return createElement(TEXT_ELEMENT, { nodeValue });
 }
