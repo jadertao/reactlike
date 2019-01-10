@@ -6,7 +6,6 @@ export class App extends Component {
     time: new Date()
   }
   render() {
-    setInterval(() => { this.setState({ time: new Date() }) }, 1000)
     return (
       <h2>{this.state.time.getSeconds()}</h2>
     )
